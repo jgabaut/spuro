@@ -18,6 +18,14 @@
   This is a C library that offers a variety of log macros.
   Check out `include/spuro.h` for more details.
 
+  ```
+  -------------------------------------------------------------------------------
+  Language                     files          blank        comment           code
+  -------------------------------------------------------------------------------
+  C/C++ Header                     1             63             26            472
+  -------------------------------------------------------------------------------
+  ```
+
   The repo is still under construction.
 
 ## Basic example <a name = "basic_example"></a>
