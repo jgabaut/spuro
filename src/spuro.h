@@ -417,9 +417,6 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
         }
     }
 
-    va_list args;
-    va_start(args, format);
-
     bool do_timestamp = false;
     if (!timed) {
         do_timestamp = spr.timed;
@@ -453,17 +450,14 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
     if (do_trace) {
         if (loc.file == NULL) {
             fprintf(stderr, "%s():    loc.file was NULL.\n", __func__);
-            va_end(args);
             return;
         }
         if (loc.func == NULL) {
             fprintf(stderr, "%s():    loc.func was NULL.\n", __func__);
-            va_end(args);
             return;
         }
         if (loc.line < 0) {
             fprintf(stderr, "%s():    loc.line was < 0.\n", __func__);
-            va_end(args);
             return;
         }
         snprintf(trace_str, 200, "[ %s:%i at %s() ] ", loc.file, loc.line, loc.func);
@@ -480,7 +474,6 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
             sprintf(time_tag,"[ %s ] ", timeheader);
         } else {
             fprintf(stderr,"%s():    Failed time string format.\n", __func__);
-            va_end(args);
             return;
         }
     }
@@ -490,7 +483,6 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
             color_fmt = spr_lvl_color(level);
             if (!color_fmt) {
                 fprintf(stderr,"%s():    Color format string was NULL.\n", __func__);
-                va_end(args);
                 return;
             }
             if (strcmp(color_fmt, "") != 0) {
@@ -503,7 +495,6 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
             if (!color_fmt) {
                 fprintf(stderr,"%s():    Color format string was NULL.\n", __func__);
                 fprintf(stderr,"%s():    Unexpected SpuroColor -> {%i}.\n", __func__, color);
-                va_end(args);
                 return;
             }
             if (strcmp(color_fmt, "") != 0) {
@@ -526,20 +517,22 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
     case SPR_FILE: {
         if (!spr.fp) {
             fprintf(stderr,"%s():    spr.fp was NULL.\n", __func__);
-            va_end(args);
             return;
         }
         out = spr.fp;
     }
     break;
     case SPR_PIT: {
-        va_end(args);
         return;
     }
     break;
     default: {
     }
     }
+
+    va_list args;
+    va_start(args, format);
+
     if (level == SPR_NOLVL) {
         if (!do_color) {
             fprintf(out, "%s%s%s", trace_str, time_tag, lvl_str);
