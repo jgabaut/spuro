@@ -27,5 +27,6 @@ int main(void)
     spr_ftimef(stdout, "This is timed.\n");
     spr_ftracef(stdout, "This is traced.\n");
     spr_fttracef(stdout, "This is both timed and traced.\n");
+    spr_fp_printf("anvil.log", "This can log to a file by passing its runtime path as a string.");
     return 0;
 }

@@ -176,13 +176,22 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
 #define spr_fprintf_lvl(fp, level, traced, timed, format, ...) spr_logf_(spr_new_file((fp)), (level), SPR_COLOR_AUTO, SPR_HERE, (traced), (timed), (format), ## __VA_ARGS__)
 #define spr_fprintf_(fp, traced, timed, format, ...) spr_fprintf_lvl((fp), SPR_NOLVL, (traced), (timed), (format), ## __VA_ARGS__)
 
-// No level argument
+// Utility filepath macros
+
+#define spr_fp_printf_lvl(path, level, traced, timed, format, ...) spr_fprintf_lvl(fopen((path), "a"), (level), (traced), (timed), (format), ## __VA_ARGS__)
+#define spr_fp_printf_(path, traced, timed, format, ...) spr_fprintf_lvl(fopen((path), "a"), SPR_NOLVL, (traced), (timed), (format), ## __VA_ARGS__)
+#define spr_fp_printf(path, format, ...) spr_fp_printf_((path), false, false, (format), ## __VA_ARGS__)
+#define spr_fp_tracef(path, format, ...) spr_fp_printf_((path), true, false, (format), ## __VA_ARGS__)
+#define spr_fp_timef(path, format, ...) spr_fp_printf_((path), false, true, (format), ## __VA_ARGS__)
+#define spr_fp_ttracef(path, format, ...) spr_fp_printf_((path), true, true, (format), ## __VA_ARGS__)
+
+// File macros, no level argument
 #define spr_fprintf(fp, format, ...) spr_fprintf_((fp), false, false, (format), ## __VA_ARGS__)
 #define spr_ftracef(fp, format, ...) spr_fprintf_((fp), true, false, (format), ## __VA_ARGS__)
 #define spr_ftimef(fp, format, ...) spr_fprintf_((fp), false, true, (format), ## __VA_ARGS__)
 #define spr_fttracef(fp, format, ...) spr_fprintf_((fp), true, true, (format), ## __VA_ARGS__)
 
-// With level argument
+// File macros with level argument
 #define spr_fprintf_to(fp, level, format, ...) spr_fprintf_lvl((fp), (level), false, false, (format), ## __VA_ARGS__)
 #define spr_ftracef_to(fp, level, format, ...) spr_fprintf_lvl((fp), (level), true, false, (format), ## __VA_ARGS__)
 #define spr_ftimef_to(fp, level, format, ...) spr_fprintf_lvl((fp), (level), false, true, (format), ## __VA_ARGS__)
