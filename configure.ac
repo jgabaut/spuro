@@ -13,7 +13,7 @@ case "${host_os}" in
 	mingw*)
 		echo "Building for mingw32: [$host_cpu-$host_vendor-$host_os]"
 		build_windows=yes
-		AC_SUBST([SPR_CFLAGS], ["-I/usr/x86_64-w64-mingw32/include -I./include -static -fstack-protector"])
+		AC_SUBST([SPR_CFLAGS], ["-I/usr/x86_64-w64-mingw32/include -static -fstack-protector"])
 		AC_SUBST([SPR_LDFLAGS], ["-L/usr/x86_64-w64-mingw32/lib"])
 		AC_SUBST([CCOMP], ["/usr/bin/x86_64-w64-mingw32-gcc"])
 		AC_SUBST([OS], ["w64-mingw32"])
@@ -23,7 +23,7 @@ case "${host_os}" in
 	darwin*)
 		build_mac=yes
 		echo "Building for macos: [$host_cpu-$host_vendor-$host_os]"
-		AC_SUBST([SPR_CFLAGS], ["-I/opt/homebrew/opt/ncurses/include -I./include"])
+		AC_SUBST([SPR_CFLAGS], ["-I/opt/homebrew/opt/ncurses/include"])
 		AC_SUBST([SPR_LDFLAGS], ["-L/opt/homebrew/opt/ncurses/lib"])
 		AC_SUBST([OS], ["darwin"])
 		AC_SUBST([TARGET], ["spuro-demo"])
@@ -32,7 +32,7 @@ case "${host_os}" in
 	linux*)
 		echo "Building for Linux: [$host_cpu-$host_vendor-$host_os]"
 		build_linux=yes
-		AC_SUBST([SPR_CFLAGS], ["-I./include"])
+		AC_SUBST([SPR_CFLAGS], [""])
 		AC_SUBST([SPR_LDFLAGS], [""])
 		AC_SUBST([OS], ["Linux"])
 		AC_SUBST([TARGET], ["spuro-demo"])

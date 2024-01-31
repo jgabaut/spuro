@@ -16,7 +16,7 @@
 ## What is this thing? <a name = "witt"></a>
 
   This is a C library that offers a variety of log macros.
-  Check out `include/spuro.h` for more details.
+  Check out `src/spuro.h` and `src/main.c` for more details.
 
   ```
   -------------------------------------------------------------------------------

@@ -7,7 +7,7 @@ else
 	printf "\033[1;31m[ERR]\e[0m    Status is dirty. Quitting.\n"
 	exit 1
 fi
-SRC_DIR="include"
+SRC_DIR="src"
 
 hlpd_SOURCES=("$SRC_DIR"/*.c "$SRC_DIR"/*.h)
 CONFIG_FILE=".astylerc"
