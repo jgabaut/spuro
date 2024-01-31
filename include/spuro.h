@@ -11,7 +11,6 @@
 #define SPURO_MINOR 1
 #define SPURO_PATCH 0
 
-
 #define SPURO_VERSION_STRING "0.1.0"
 
 typedef enum SpuroOut {
@@ -107,7 +106,6 @@ Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool t
 
 #define spr_new(out) spr_new_(NULL, false, (out), SPR_DEFAULT.lvl, false, false, false)
 
-
 // Utility new() macros
 
 #define spr_new_conf(out, timed, colored, traced) spr_new_(NULL, false, (out), SPR_NOLVL, (timed), (colored), (traced))
@@ -149,7 +147,6 @@ Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool t
 #define spr_new_tctraced_level(out, level) spr_new_lvl_conf((out),(level),true,true,true)
 
 bool spr_setfile(Spuro *spr, FILE *file);
-
 
 void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char *format, ...);
 
@@ -220,42 +217,44 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
 
 #ifdef SPURO_IMPLEMENTATION
 
-const char* spr_version_string(void) {
+const char* spr_version_string(void)
+{
     return SPURO_VERSION_STRING;
 }
 
-const char* spr_lvl_string(SpuroLevel lvl) {
+const char* spr_lvl_string(SpuroLevel lvl)
+{
     if (lvl <= SPR_LVL_MAX && lvl >= SPR_NOLVL) {
         switch (lvl) {
-            case SPR_NOLVL: {
-                return "";
-            }
-            break;
-            case SPR_ERROR: {
-                return "ERROR";
-            }
-            break;
-            case SPR_INFO: {
-                return "INFO";
-            }
-            break;
-            case SPR_WARN: {
-                return "WARN";
-            }
-            break;
-            case SPR_DEBUG: {
-                return "DEBUG";
-            }
-            break;
-            case SPR_TRACE: {
-                return "TRACE";
-            }
-            break;
-            default: {
-                fprintf(stderr, "%s():    unexpected lvl -> {%i}.\n", __func__, lvl);
-                return NULL;
-            }
-            break;
+        case SPR_NOLVL: {
+            return "";
+        }
+        break;
+        case SPR_ERROR: {
+            return "ERROR";
+        }
+        break;
+        case SPR_INFO: {
+            return "INFO";
+        }
+        break;
+        case SPR_WARN: {
+            return "WARN";
+        }
+        break;
+        case SPR_DEBUG: {
+            return "DEBUG";
+        }
+        break;
+        case SPR_TRACE: {
+            return "TRACE";
+        }
+        break;
+        default: {
+            fprintf(stderr, "%s():    unexpected lvl -> {%i}.\n", __func__, lvl);
+            return NULL;
+        }
+        break;
         }
     } else {
         fprintf(stderr, "%s():    invalid lvl -> {%i}.\n", __func__, lvl);
@@ -263,38 +262,39 @@ const char* spr_lvl_string(SpuroLevel lvl) {
     }
 }
 
-const char* spr_lvl_color(SpuroLevel lvl) {
+const char* spr_lvl_color(SpuroLevel lvl)
+{
     if (lvl <= SPR_LVL_MAX && lvl >= SPR_NOLVL) {
         switch (lvl) {
-            case SPR_NOLVL: {
-                return "";
-            }
-            break;
-            case SPR_ERROR: {
-                return SPR_COLORSTR_ERROR;
-            }
-            break;
-            case SPR_INFO: {
-                return SPR_COLORSTR_INFO;
-            }
-            break;
-            case SPR_WARN: {
-                return SPR_COLORSTR_WARN;
-            }
-            break;
-            case SPR_DEBUG: {
-                return SPR_COLORSTR_DEBUG;
-            }
-            break;
-            case SPR_TRACE: {
-                return SPR_COLORSTR_TRACE;
-            }
-            break;
-            default: {
-                fprintf(stderr, "%s():    unexpected lvl -> {%i}.\n", __func__, lvl);
-                return NULL;
-            }
-            break;
+        case SPR_NOLVL: {
+            return "";
+        }
+        break;
+        case SPR_ERROR: {
+            return SPR_COLORSTR_ERROR;
+        }
+        break;
+        case SPR_INFO: {
+            return SPR_COLORSTR_INFO;
+        }
+        break;
+        case SPR_WARN: {
+            return SPR_COLORSTR_WARN;
+        }
+        break;
+        case SPR_DEBUG: {
+            return SPR_COLORSTR_DEBUG;
+        }
+        break;
+        case SPR_TRACE: {
+            return SPR_COLORSTR_TRACE;
+        }
+        break;
+        default: {
+            fprintf(stderr, "%s():    unexpected lvl -> {%i}.\n", __func__, lvl);
+            return NULL;
+        }
+        break;
         }
     } else {
         fprintf(stderr, "%s():    invalid lvl -> {%i}.\n", __func__, lvl);
@@ -302,46 +302,47 @@ const char* spr_lvl_color(SpuroLevel lvl) {
     }
 }
 
-const char* spr_color_string(SpuroColor color) {
+const char* spr_color_string(SpuroColor color)
+{
     if (color <= SPR_COLOR_MAX && color >= SPR_COLOR_AUTO) {
         switch (color) {
-            case SPR_COLOR_AUTO: {
-                return "";
-            }
-            break;
-            case SPR_RED: {
-                return SPR_COLORSTR_RED;
-            }
-            break;
-            case SPR_GREEN: {
-                return SPR_COLORSTR_GREEN;
-            }
-            break;
-            case SPR_YELLOW: {
-                return SPR_COLORSTR_YELLOW;
-            }
-            break;
-            case SPR_BLUE: {
-                return SPR_COLORSTR_BLUE;
-            }
-            break;
-            case SPR_MAGENTA: {
-                return SPR_COLORSTR_MAGENTA;
-            }
-            break;
-            case SPR_CYAN: {
-                return SPR_COLORSTR_CYAN;
-            }
-            break;
-            case SPR_WHITE: {
-                return SPR_COLORSTR_WHITE;
-            }
-            break;
-            default: {
-                fprintf(stderr, "%s():    unexpected color -> {%i}.\n", __func__, color);
-                return NULL;
-            }
-            break;
+        case SPR_COLOR_AUTO: {
+            return "";
+        }
+        break;
+        case SPR_RED: {
+            return SPR_COLORSTR_RED;
+        }
+        break;
+        case SPR_GREEN: {
+            return SPR_COLORSTR_GREEN;
+        }
+        break;
+        case SPR_YELLOW: {
+            return SPR_COLORSTR_YELLOW;
+        }
+        break;
+        case SPR_BLUE: {
+            return SPR_COLORSTR_BLUE;
+        }
+        break;
+        case SPR_MAGENTA: {
+            return SPR_COLORSTR_MAGENTA;
+        }
+        break;
+        case SPR_CYAN: {
+            return SPR_COLORSTR_CYAN;
+        }
+        break;
+        case SPR_WHITE: {
+            return SPR_COLORSTR_WHITE;
+        }
+        break;
+        default: {
+            fprintf(stderr, "%s():    unexpected color -> {%i}.\n", __func__, color);
+            return NULL;
+        }
+        break;
         }
     } else {
         fprintf(stderr, "%s():    invalid color -> {%i}.\n", __func__, color);
@@ -349,11 +350,14 @@ const char* spr_color_string(SpuroColor color) {
     }
 }
 
-Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool timed, bool colored, bool traced) {
+Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool timed, bool colored, bool traced)
+{
     if (check_file) {
         if (!fp) {
             fprintf(stderr,"%s():    FILE was NULL.\n", __func__);
-            return (Spuro){0};
+            return (Spuro) {
+                0
+            };
         }
     }
     return (Spuro) {
@@ -366,7 +370,8 @@ Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool t
     };
 }
 
-bool spr_setfile(struct Spuro *spr, FILE *file) {
+bool spr_setfile(struct Spuro *spr, FILE *file)
+{
     if (!spr) {
         fprintf(stderr,"%s():    Spuro was NULL.\n", __func__);
         return false;
@@ -481,59 +486,59 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
     }
     if (do_color) {
         switch (color) {
-            case SPR_COLOR_AUTO: {
-                color_fmt = spr_lvl_color(level);
-                if (!color_fmt) {
-                    fprintf(stderr,"%s():    Color format string was NULL.\n", __func__);
-                    va_end(args);
-                    return;
-                }
-                if (strcmp(color_fmt, "") != 0) {
-                    sprintf(color_str, "%s", color_fmt);
-                }
+        case SPR_COLOR_AUTO: {
+            color_fmt = spr_lvl_color(level);
+            if (!color_fmt) {
+                fprintf(stderr,"%s():    Color format string was NULL.\n", __func__);
+                va_end(args);
+                return;
             }
-            break;
-            default: {
-                color_fmt = spr_color_string(color);
-                if (!color_fmt) {
-                    fprintf(stderr,"%s():    Color format string was NULL.\n", __func__);
-                    fprintf(stderr,"%s():    Unexpected SpuroColor -> {%i}.\n", __func__, color);
-                    va_end(args);
-                    return;
-                }
-                if (strcmp(color_fmt, "") != 0) {
-                    sprintf(color_str, "%s", color_fmt);
-                }
+            if (strcmp(color_fmt, "") != 0) {
+                sprintf(color_str, "%s", color_fmt);
             }
-            break;
+        }
+        break;
+        default: {
+            color_fmt = spr_color_string(color);
+            if (!color_fmt) {
+                fprintf(stderr,"%s():    Color format string was NULL.\n", __func__);
+                fprintf(stderr,"%s():    Unexpected SpuroColor -> {%i}.\n", __func__, color);
+                va_end(args);
+                return;
+            }
+            if (strcmp(color_fmt, "") != 0) {
+                sprintf(color_str, "%s", color_fmt);
+            }
+        }
+        break;
         }
     }
     FILE* out = NULL;
     switch (spr.out) {
-            case SPR_STDERR: {
-                out = stderr;
-            }
-            break;
-            case SPR_STDOUT: {
-                out = stdout;
-            }
-            break;
-            case SPR_FILE: {
-                if (!spr.fp) {
-                    fprintf(stderr,"%s():    spr.fp was NULL.\n", __func__);
-                    va_end(args);
-                    return;
-                }
-                out = spr.fp;
-            }
-            break;
-            case SPR_PIT: {
-                va_end(args);
-                return;
-            }
-            break;
-            default: {
-            }
+    case SPR_STDERR: {
+        out = stderr;
+    }
+    break;
+    case SPR_STDOUT: {
+        out = stdout;
+    }
+    break;
+    case SPR_FILE: {
+        if (!spr.fp) {
+            fprintf(stderr,"%s():    spr.fp was NULL.\n", __func__);
+            va_end(args);
+            return;
+        }
+        out = spr.fp;
+    }
+    break;
+    case SPR_PIT: {
+        va_end(args);
+        return;
+    }
+    break;
+    default: {
+    }
     }
     if (level == SPR_NOLVL) {
         if (!do_color) {
