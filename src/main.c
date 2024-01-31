@@ -21,5 +21,10 @@ int main(void) {
     s3.timed = true;
     s3.lvl = SPR_DEBUG;
     spr_tclogf_to(s3, SPR_RED, SPR_DEBUG, "Color is ignored since this Spuro is outputting with SPR_FILE. This Spuro is timed.");
+
+    spr_fprintf(stdout, "This macro can be used with a file pointer.\n");
+    spr_ftimef(stdout, "This is timed.\n");
+    spr_ftracef(stdout, "This is traced.\n");
+    spr_fttracef(stdout, "This is both timed and traced.\n");
     return 0;
 }

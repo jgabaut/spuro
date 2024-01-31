@@ -164,7 +164,6 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
 #define spr_clogf_to(spr, color, level, format, ...) spr_logf_((spr), (level), (color), SPR_HERE, false, false, (format), ## __VA_ARGS__)
 #define spr_tclogf_to(spr, color, level, format, ...) spr_logf_((spr), (level), (color), SPR_HERE, false, true, (format), ## __VA_ARGS__)
 
-
 // Utility trace macros
 #define spr_logtf(spr, format, ...) spr_logf_((spr), SPR_NOLVL, SPR_COLOR_AUTO, SPR_HERE, true, false, (format), ## __VA_ARGS__)
 #define spr_tlogtf(spr, format, ...) spr_logf_((spr), SPR_NOLVL, SPR_COLOR_AUTO, SPR_HERE, true, true, (format), ## __VA_ARGS__)
@@ -174,6 +173,23 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
 #define spr_tlogtf_to(spr, level, format, ...) spr_logf_((spr), (level), SPR_COLOR_AUTO, SPR_HERE, true, true, (format), ## __VA_ARGS__)
 #define spr_clogtf_to(spr, color, level, format, ...) spr_logf_((spr), (level), (color), SPR_HERE, true, false, (format), ## __VA_ARGS__)
 #define spr_tclogtf_to(spr, color, level, format, ...) spr_logf_((spr), (level), (color), SPR_HERE, true, true, (format), ## __VA_ARGS__)
+
+// Utility file macros
+
+#define spr_fprintf_lvl(fp, level, traced, timed, format, ...) spr_logf_(spr_new_file((fp)), (level), SPR_COLOR_AUTO, SPR_HERE, (traced), (timed), (format), ## __VA_ARGS__)
+#define spr_fprintf_(fp, traced, timed, format, ...) spr_fprintf_lvl((fp), SPR_NOLVL, (traced), (timed), (format), ## __VA_ARGS__)
+
+// No level argument
+#define spr_fprintf(fp, format, ...) spr_fprintf_((fp), false, false, (format), ## __VA_ARGS__)
+#define spr_ftracef(fp, format, ...) spr_fprintf_((fp), true, false, (format), ## __VA_ARGS__)
+#define spr_ftimef(fp, format, ...) spr_fprintf_((fp), false, true, (format), ## __VA_ARGS__)
+#define spr_fttracef(fp, format, ...) spr_fprintf_((fp), true, true, (format), ## __VA_ARGS__)
+
+// With level argument
+#define spr_fprintf_to(fp, level, format, ...) spr_fprintf_lvl((fp), (level), false, false, (format), ## __VA_ARGS__)
+#define spr_ftracef_to(fp, level, format, ...) spr_fprintf_lvl((fp), (level), true, false, (format), ## __VA_ARGS__)
+#define spr_ftimef_to(fp, level, format, ...) spr_fprintf_lvl((fp), (level), false, true, (format), ## __VA_ARGS__)
+#define spr_fttracef_to(fp, level, format, ...) spr_fprintf_lvl((fp), (level), true, true, (format), ## __VA_ARGS__)
 
 // SPR_DEFAULT log macros
 
