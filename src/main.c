@@ -1,7 +1,8 @@
 #define SPURO_IMPLEMENTATION
 #include "spuro.h"
 
-int main(void) {
+int main(void)
+{
     spr_printf("Hello, World!\n");
     spr_tracef("v%s\n", spr_version_string());
     spr_cprintf(SPR_RED, "RED\n");
