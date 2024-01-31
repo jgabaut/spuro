@@ -105,13 +105,27 @@ typedef struct SpuroLoc {
 const char* spr_version_string(void);
 Spuro spr_new(SpuroOut out);
 Spuro spr_from_file(FILE* fp);
-Spuro spr_new_level_(SpuroOut out, SpuroLevel level, bool timed, bool colored, bool traced);
+Spuro spr_new_level_(FILE* fp, SpuroOut out, SpuroLevel level, bool timed, bool colored, bool traced);
 
 
 // Utility new() macros
 
-#define spr_new_conf(out, timed, colored, traced) spr_new_level_((out), SPR_NOLVL, (timed), (colored), (traced))
-#define spr_new_lvl_conf(out, level, timed, colored, traced) spr_new_level_((out), (level), (timed), (colored), (traced))
+#define spr_new_conf(out, timed, colored, traced) spr_new_level_(NULL, (out), SPR_NOLVL, (timed), (colored), (traced))
+#define spr_new_lvl_conf(out, level, timed, colored, traced) spr_new_level_(NULL, (out), (level), (timed), (colored), (traced))
+
+// Utility new_file() macros
+
+#define spr_new_file_conf(fp, timed, colored, traced) spr_new_level_((fp), SPR_FILE, SPR_NOLVL, (timed), (colored), (traced))
+#define spr_new_file(fp) spr_new_file_conf((fp),false,false,false)
+#define spr_new_file_timed(fp) spr_new_file_conf((fp),true,false,false)
+#define spr_new_file_traced(fp) spr_new_file_conf((fp),false,false,true)
+#define spr_new_file_tt(fp) spr_new_file_conf((fp),true,false,true)
+
+// Utility new_file() level + conf macros
+#define spr_new_file_lvl_conf(fp, level, timed, colored, traced) spr_new_level_((fp), SPR_FILE, (level), (timed), (colored), (traced))
+#define spr_new_file_timed_to(fp, level) spr_new_lvl_conf((fp), (level), true,false,false)
+#define spr_new_file_traced_to(fp, level) spr_new_lvl_conf((fp), (level), false,false,true)
+#define spr_new_file_tt_to(fp, level) spr_new_lvl_conf((fp), (level),true,false,true)
 
 // Utility new() conf macros
 
@@ -331,8 +345,9 @@ Spuro spr_from_file(FILE* fp) {
     return (Spuro){ .out = SPR_FILE, .fp = fp};
 }
 
-Spuro spr_new_level_(SpuroOut out, SpuroLevel level, bool timed, bool colored, bool traced) {
+Spuro spr_new_level_(FILE* fp, SpuroOut out, SpuroLevel level, bool timed, bool colored, bool traced) {
     return (Spuro) {
+        .fp = fp,
         .out = out,
         .lvl = level,
         .timed = (timed ? true : (level == SPR_TRACE ? true : false)),
