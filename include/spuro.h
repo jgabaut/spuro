@@ -91,18 +91,41 @@ typedef struct SpuroLoc {
     .func = __func__, \
 }
 
-extern const Spuro spr_glbl;
+#ifndef SPR_DEFAULT
+#define SPR_DEFAULT (Spuro) { \
+    .out = SPR_STDERR, \
+    .fp = NULL, \
+    .lvl = SPR_LVL_MAX, \
+    .timed = false, \
+    .colored = false, \
+    .traced = false, \
+}
+#endif // SPR_DEFAULT
 
 const char* spr_version_string(void);
-Spuro spr_new(SpuroOut out);
-Spuro spr_from_file(FILE* fp);
-Spuro spr_new_level_(SpuroOut out, SpuroLevel level, bool timed, bool colored, bool traced);
+Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool timed, bool colored, bool traced);
+
+#define spr_new(out) spr_new_(NULL, false, (out), SPR_DEFAULT.lvl, false, false, false)
 
 
 // Utility new() macros
 
-#define spr_new_conf(out, timed, colored, traced) spr_new_level_((out), SPR_NOLVL, (timed), (colored), (traced))
-#define spr_new_lvl_conf(out, level, timed, colored, traced) spr_new_level_((out), (level), (timed), (colored), (traced))
+#define spr_new_conf(out, timed, colored, traced) spr_new_(NULL, false, (out), SPR_NOLVL, (timed), (colored), (traced))
+#define spr_new_lvl_conf(out, level, timed, colored, traced) spr_new_(NULL, false, (out), (level), (timed), (colored), (traced))
+
+// Utility new_file() macros
+
+#define spr_new_file_conf(fp, timed, colored, traced) spr_new_((fp), true, SPR_FILE, SPR_NOLVL, (timed), (colored), (traced))
+#define spr_new_file(fp) spr_new_file_conf((fp),false,false,false)
+#define spr_new_file_timed(fp) spr_new_file_conf((fp),true,false,false)
+#define spr_new_file_traced(fp) spr_new_file_conf((fp),false,false,true)
+#define spr_new_file_tt(fp) spr_new_file_conf((fp),true,false,true)
+
+// Utility new_file() level + conf macros
+#define spr_new_file_lvl_conf(fp, level, timed, colored, traced) spr_new_((fp), true, SPR_FILE, (level), (timed), (colored), (traced))
+#define spr_new_file_timed_to(fp, level) spr_new_lvl_conf((fp), (level), true,false,false)
+#define spr_new_file_traced_to(fp, level) spr_new_lvl_conf((fp), (level), false,false,true)
+#define spr_new_file_tt_to(fp, level) spr_new_lvl_conf((fp), (level),true,false,true)
 
 // Utility new() conf macros
 
@@ -128,7 +151,7 @@ Spuro spr_new_level_(SpuroOut out, SpuroLevel level, bool timed, bool colored, b
 bool spr_setfile(Spuro *spr, FILE *file);
 
 
-void spr_logf_(const Spuro *spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char *format, ...);
+void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char *format, ...);
 
 // Utility log macros
 
@@ -141,7 +164,6 @@ void spr_logf_(const Spuro *spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
 #define spr_clogf_to(spr, color, level, format, ...) spr_logf_((spr), (level), (color), SPR_HERE, false, false, (format), ## __VA_ARGS__)
 #define spr_tclogf_to(spr, color, level, format, ...) spr_logf_((spr), (level), (color), SPR_HERE, false, true, (format), ## __VA_ARGS__)
 
-
 // Utility trace macros
 #define spr_logtf(spr, format, ...) spr_logf_((spr), SPR_NOLVL, SPR_COLOR_AUTO, SPR_HERE, true, false, (format), ## __VA_ARGS__)
 #define spr_tlogtf(spr, format, ...) spr_logf_((spr), SPR_NOLVL, SPR_COLOR_AUTO, SPR_HERE, true, true, (format), ## __VA_ARGS__)
@@ -152,43 +174,51 @@ void spr_logf_(const Spuro *spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
 #define spr_clogtf_to(spr, color, level, format, ...) spr_logf_((spr), (level), (color), SPR_HERE, true, false, (format), ## __VA_ARGS__)
 #define spr_tclogtf_to(spr, color, level, format, ...) spr_logf_((spr), (level), (color), SPR_HERE, true, true, (format), ## __VA_ARGS__)
 
-// spr_glbl log macros
+// Utility file macros
 
-#define spr_printf(format, ...) spr_logf(&spr_glbl, (format), ## __VA_ARGS__)
-#define spr_tprintf(format, ...) spr_tlogf(&spr_glbl, (format), ## __VA_ARGS__)
-#define spr_cprintf(color, format, ...) spr_clogf(&spr_glbl, (color), (format), ## __VA_ARGS__)
-#define spr_tcprintf(color, format, ...) spr_tclogf(&spr_glbl, (color), (format), ## __VA_ARGS__)
-#define spr_lprintf(level, format, ...) spr_logf_to(&spr_glbl, (level), (format), ## __VA_ARGS__)
-#define spr_tlprintf(level, format, ...) spr_tlogf_to(&spr_glbl, (level), (format), ## __VA_ARGS__)
-#define spr_clprintf(color, level, format, ...) spr_clogf_to(&spr_glbl, (color), (level), (format), ## __VA_ARGS__)
-#define spr_lcprintf(level, color, format, ...) spr_clogf_to(&spr_glbl, (color), (level), (format), ## __VA_ARGS__)
-#define spr_tclprintf(color, level, format, ...) spr_tclogf_to(&spr_glbl, (color), (level), (format), ## __VA_ARGS__)
-#define spr_tlcprintf(level, color, format, ...) spr_tclogf_to(&spr_glbl, (color), (level), (format), ## __VA_ARGS__)
+#define spr_fprintf_lvl(fp, level, traced, timed, format, ...) spr_logf_(spr_new_file((fp)), (level), SPR_COLOR_AUTO, SPR_HERE, (traced), (timed), (format), ## __VA_ARGS__)
+#define spr_fprintf_(fp, traced, timed, format, ...) spr_fprintf_lvl((fp), SPR_NOLVL, (traced), (timed), (format), ## __VA_ARGS__)
 
-// spr_glbl trace macros
-#define spr_tracef(format, ...) spr_logtf(&spr_glbl, (format), ## __VA_ARGS__)
-#define spr_ttracef(format, ...) spr_tlogtf(&spr_glbl, (format), ## __VA_ARGS__)
-#define spr_ctracef(color, format, ...) spr_clogtf(&spr_glbl, (color), (format), ## __VA_ARGS__)
-#define spr_tctracef(color, format, ...) spr_tclogtf(&spr_glbl, (color), SPR_HERE, (format), ## __VA_ARGS__)
-#define spr_ltracef(level, format, ...) spr_logtf_to(&spr_glbl, (level), (format), ## __VA_ARGS__)
-#define spr_tltracef(level, format, ...) spr_tlogtf_to(&spr_glbl, (level), (format), ## __VA_ARGS__)
-#define spr_cltracef(color, level, format, ...) spr_clogtf_to(&spr_glbl, (color), (level), (format), ## __VA_ARGS__)
-#define spr_lctracef(level, color, format, ...) spr_clogtf_to(&spr_glbl, (color), (level), (format), ## __VA_ARGS__)
-#define spr_tcltracef(color, level, format, ...) spr_tclogtf_to(&spr_glbl, (color), (level), (color), (format), ## __VA_ARGS__)
-#define spr_tlctracef(level, color, format, ...) spr_tclogtf_to(&spr_glbl, (color), (level), (color), (format), ## __VA_ARGS__)
+// No level argument
+#define spr_fprintf(fp, format, ...) spr_fprintf_((fp), false, false, (format), ## __VA_ARGS__)
+#define spr_ftracef(fp, format, ...) spr_fprintf_((fp), true, false, (format), ## __VA_ARGS__)
+#define spr_ftimef(fp, format, ...) spr_fprintf_((fp), false, true, (format), ## __VA_ARGS__)
+#define spr_fttracef(fp, format, ...) spr_fprintf_((fp), true, true, (format), ## __VA_ARGS__)
+
+// With level argument
+#define spr_fprintf_to(fp, level, format, ...) spr_fprintf_lvl((fp), (level), false, false, (format), ## __VA_ARGS__)
+#define spr_ftracef_to(fp, level, format, ...) spr_fprintf_lvl((fp), (level), true, false, (format), ## __VA_ARGS__)
+#define spr_ftimef_to(fp, level, format, ...) spr_fprintf_lvl((fp), (level), false, true, (format), ## __VA_ARGS__)
+#define spr_fttracef_to(fp, level, format, ...) spr_fprintf_lvl((fp), (level), true, true, (format), ## __VA_ARGS__)
+
+// SPR_DEFAULT log macros
+
+#define spr_printf(format, ...) spr_logf(SPR_DEFAULT, (format), ## __VA_ARGS__)
+#define spr_tprintf(format, ...) spr_tlogf(SPR_DEFAULT, (format), ## __VA_ARGS__)
+#define spr_cprintf(color, format, ...) spr_clogf(SPR_DEFAULT, (color), (format), ## __VA_ARGS__)
+#define spr_tcprintf(color, format, ...) spr_tclogf(SPR_DEFAULT, (color), (format), ## __VA_ARGS__)
+#define spr_lprintf(level, format, ...) spr_logf_to(SPR_DEFAULT, (level), (format), ## __VA_ARGS__)
+#define spr_tlprintf(level, format, ...) spr_tlogf_to(SPR_DEFAULT, (level), (format), ## __VA_ARGS__)
+#define spr_clprintf(color, level, format, ...) spr_clogf_to(SPR_DEFAULT, (color), (level), (format), ## __VA_ARGS__)
+#define spr_lcprintf(level, color, format, ...) spr_clogf_to(SPR_DEFAULT, (color), (level), (format), ## __VA_ARGS__)
+#define spr_tclprintf(color, level, format, ...) spr_tclogf_to(SPR_DEFAULT, (color), (level), (format), ## __VA_ARGS__)
+#define spr_tlcprintf(level, color, format, ...) spr_tclogf_to(SPR_DEFAULT, (color), (level), (format), ## __VA_ARGS__)
+
+// SPR_DEFAULT trace macros
+#define spr_tracef(format, ...) spr_logtf(SPR_DEFAULT, (format), ## __VA_ARGS__)
+#define spr_ttracef(format, ...) spr_tlogtf(SPR_DEFAULT, (format), ## __VA_ARGS__)
+#define spr_ctracef(color, format, ...) spr_clogtf(SPR_DEFAULT, (color), (format), ## __VA_ARGS__)
+#define spr_tctracef(color, format, ...) spr_tclogtf(SPR_DEFAULT, (color), SPR_HERE, (format), ## __VA_ARGS__)
+#define spr_ltracef(level, format, ...) spr_logtf_to(SPR_DEFAULT, (level), (format), ## __VA_ARGS__)
+#define spr_tltracef(level, format, ...) spr_tlogtf_to(SPR_DEFAULT, (level), (format), ## __VA_ARGS__)
+#define spr_cltracef(color, level, format, ...) spr_clogtf_to(SPR_DEFAULT, (color), (level), (format), ## __VA_ARGS__)
+#define spr_lctracef(level, color, format, ...) spr_clogtf_to(SPR_DEFAULT, (color), (level), (format), ## __VA_ARGS__)
+#define spr_tcltracef(color, level, format, ...) spr_tclogtf_to(SPR_DEFAULT, (color), (level), (color), (format), ## __VA_ARGS__)
+#define spr_tlctracef(level, color, format, ...) spr_tclogtf_to(SPR_DEFAULT, (color), (level), (color), (format), ## __VA_ARGS__)
 
 #endif // SPURO_H_
 
 #ifdef SPURO_IMPLEMENTATION
-
-const Spuro spr_glbl = {
-    .out = SPR_STDERR,
-    .fp = NULL,
-    .lvl = SPR_NOLVL,
-    .timed = false,
-    .colored = false,
-    .traced = false,
-};
 
 const char* spr_version_string(void) {
     return SPURO_VERSION_STRING;
@@ -319,20 +349,15 @@ const char* spr_color_string(SpuroColor color) {
     }
 }
 
-Spuro spr_new(SpuroOut out) {
-    return (Spuro){ .out = out };
-}
-
-Spuro spr_from_file(FILE* fp) {
-    if (!fp) {
-        fprintf(stderr,"%s():    FILE was NULL.\n", __func__);
-        return (Spuro){0};
+Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool timed, bool colored, bool traced) {
+    if (check_file) {
+        if (!fp) {
+            fprintf(stderr,"%s():    FILE was NULL.\n", __func__);
+            return (Spuro){0};
+        }
     }
-    return (Spuro){ .out = SPR_FILE, .fp = fp};
-}
-
-Spuro spr_new_level_(SpuroOut out, SpuroLevel level, bool timed, bool colored, bool traced) {
     return (Spuro) {
+        .fp = fp,
         .out = out,
         .lvl = level,
         .timed = (timed ? true : (level == SPR_TRACE ? true : false)),
@@ -364,14 +389,8 @@ bool spr_setfile(struct Spuro *spr, FILE *file) {
  * @param timed Timestamp message when true.
  * @param format The format string for message.
  */
-void spr_logf_(const Spuro *spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char *format, ...)
+void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char *format, ...)
 {
-    if (!spr) {
-        fprintf(stderr,
-                "%s():    Spuro was NULL.\n", __func__);
-        return;
-    }
-
     const char* lvl_tag;
     char lvl_str[50] = "";
 
@@ -380,7 +399,7 @@ void spr_logf_(const Spuro *spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
 
     char trace_str[200] = "";
 
-    if (level > spr->lvl) {
+    if (level > spr.lvl) {
         return;
     } else {
         lvl_tag = spr_lvl_string(level);
@@ -398,16 +417,16 @@ void spr_logf_(const Spuro *spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
 
     bool do_timestamp = false;
     if (!timed) {
-        do_timestamp = spr->timed;
+        do_timestamp = spr.timed;
     } else {
         do_timestamp = true;
     }
 
     bool do_color = false;
     if (color == SPR_COLOR_AUTO) {
-        do_color = spr->colored;
+        do_color = spr.colored;
     } else {
-        do_color = (spr->out != SPR_FILE);
+        do_color = (spr.out != SPR_FILE);
     }
 #ifdef _WIN32
     /**
@@ -421,7 +440,7 @@ void spr_logf_(const Spuro *spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
     bool do_trace = false;
 
     if (!traced) {
-        do_trace = spr->traced;
+        do_trace = spr.traced;
     } else {
         do_trace = traced;
     }
@@ -490,7 +509,7 @@ void spr_logf_(const Spuro *spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
         }
     }
     FILE* out = NULL;
-    switch (spr->out) {
+    switch (spr.out) {
             case SPR_STDERR: {
                 out = stderr;
             }
@@ -500,12 +519,12 @@ void spr_logf_(const Spuro *spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
             }
             break;
             case SPR_FILE: {
-                if (!spr->fp) {
-                    fprintf(stderr,"%s():    spr->fp was NULL.\n", __func__);
+                if (!spr.fp) {
+                    fprintf(stderr,"%s():    spr.fp was NULL.\n", __func__);
                     va_end(args);
                     return;
                 }
-                out = spr->fp;
+                out = spr.fp;
             }
             break;
             case SPR_PIT: {
