@@ -5,8 +5,8 @@ int main(void) {
     spr_printf("Hello, World!\n");
     spr_tracef("v%s\n", spr_version_string());
     spr_cprintf(SPR_RED, "RED\n");
-    spr_lprintf(SPR_NOLVL, "INFO\n");
-    spr_clprintf(SPR_RED, SPR_NOLVL, "RED INFO\n");
+    spr_lprintf(SPR_INFO, "Messages with a level get automatic newline.");
+    spr_clprintf(SPR_RED, SPR_INFO, "RED INFO");
     spr_tprintf("Timed\n");
     Spuro s = spr_new_level_colored(SPR_STDOUT, SPR_TRACE);
     spr_logf_to(s, SPR_INFO, "This gets automatic timestamp and trace, given that the passed level to the spr_new_level_() function is SPR_TRACE.");
