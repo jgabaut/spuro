@@ -71,6 +71,7 @@ typedef struct Spuro {
     SpuroLevel lvl;
     bool timed;
     bool colored;
+    bool traced;
 } Spuro;
 
 typedef struct SpuroLoc {
@@ -131,14 +132,14 @@ void spr_logf_(const Spuro *spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
 
 // Utility log macros
 
-#define spr_logf(spr, format, ...) spr_logf_((spr), SPR_NOLVL, SPR_COLOR_AUTO, SPR_LOC_NULL, false, false, (format), ## __VA_ARGS__)
-#define spr_tlogf(spr, format, ...) spr_logf_((spr), SPR_NOLVL, SPR_COLOR_AUTO, SPR_LOC_NULL, false, true, (format), ## __VA_ARGS__)
-#define spr_clogf(spr, color, format, ...) spr_logf_((spr), SPR_NOLVL, (color), SPR_LOC_NULL, false, false, (format), ## __VA_ARGS__)
-#define spr_tclogf(spr, color, format, ...) spr_logf_((spr), SPR_NOLVL, (color), SPR_LOC_NULL, false, true, (format), ## __VA_ARGS__)
-#define spr_logf_to(spr, level, format, ...) spr_logf_((spr), (level), SPR_COLOR_AUTO, SPR_LOC_NULL, false, false, (format), ## __VA_ARGS__)
-#define spr_tlogf_to(spr, level, format, ...) spr_logf_((spr), (level), SPR_COLOR_AUTO, SPR_LOC_NULL, false, true, (format), ## __VA_ARGS__)
-#define spr_clogf_to(spr, color, level, format, ...) spr_logf_((spr), (level), (color), SPR_LOC_NULL, false, false, (format), ## __VA_ARGS__)
-#define spr_tclogf_to(spr, color, level, format, ...) spr_logf_((spr), (level), (color), SPR_LOC_NULL, false, true, (format), ## __VA_ARGS__)
+#define spr_logf(spr, format, ...) spr_logf_((spr), SPR_NOLVL, SPR_COLOR_AUTO, SPR_HERE, false, false, (format), ## __VA_ARGS__)
+#define spr_tlogf(spr, format, ...) spr_logf_((spr), SPR_NOLVL, SPR_COLOR_AUTO, SPR_HERE, false, true, (format), ## __VA_ARGS__)
+#define spr_clogf(spr, color, format, ...) spr_logf_((spr), SPR_NOLVL, (color), SPR_HERE, false, false, (format), ## __VA_ARGS__)
+#define spr_tclogf(spr, color, format, ...) spr_logf_((spr), SPR_NOLVL, (color), SPR_HERE, false, true, (format), ## __VA_ARGS__)
+#define spr_logf_to(spr, level, format, ...) spr_logf_((spr), (level), SPR_COLOR_AUTO, SPR_HERE, false, false, (format), ## __VA_ARGS__)
+#define spr_tlogf_to(spr, level, format, ...) spr_logf_((spr), (level), SPR_COLOR_AUTO, SPR_HERE, false, true, (format), ## __VA_ARGS__)
+#define spr_clogf_to(spr, color, level, format, ...) spr_logf_((spr), (level), (color), SPR_HERE, false, false, (format), ## __VA_ARGS__)
+#define spr_tclogf_to(spr, color, level, format, ...) spr_logf_((spr), (level), (color), SPR_HERE, false, true, (format), ## __VA_ARGS__)
 
 
 // Utility trace macros
@@ -186,6 +187,7 @@ const Spuro spr_glbl = {
     .lvl = SPR_NOLVL,
     .timed = false,
     .colored = false,
+    .traced = false,
 };
 
 const char* spr_version_string(void) {
@@ -335,6 +337,7 @@ Spuro spr_new_level_(SpuroOut out, SpuroLevel level, bool timed, bool colored, b
         .lvl = level,
         .timed = (timed ? true : (level == SPR_TRACE ? true : false)),
         .colored = colored,
+        .traced = (traced ? true : (level == SPR_TRACE ? true : false)),
     };
 }
 
@@ -416,7 +419,12 @@ void spr_logf_(const Spuro *spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
 #endif
 
     bool do_trace = false;
-    do_trace = traced;
+
+    if (!traced) {
+        do_trace = spr->traced;
+    } else {
+        do_trace = traced;
+    }
 
     if (do_trace) {
         if (loc.file == NULL) {
