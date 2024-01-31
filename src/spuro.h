@@ -178,8 +178,13 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
 
 // Utility filepath macros
 
-#define spr_fp_printf_lvl(path, level, traced, timed, format, ...) spr_fprintf_lvl(fopen((path), "a"), (level), (traced), (timed), (format), ## __VA_ARGS__)
-#define spr_fp_printf_(path, traced, timed, format, ...) spr_fprintf_lvl(fopen((path), "a"), SPR_NOLVL, (traced), (timed), (format), ## __VA_ARGS__)
+#define spr_fp_printf_lvl(path, level, traced, timed, format, ...) do { \
+    FILE* spr_inner_file = fopen((path), "a"); \
+    spr_fprintf_lvl(spr_inner_file, (level), (traced), (timed), (format), ## __VA_ARGS__); \
+    fclose(spr_inner_file); \
+} while (0);
+
+#define spr_fp_printf_(path, traced, timed, format, ...) spr_fp_printf_lvl((path), SPR_NOLVL, (traced), (timed), (format), ## __VA_ARGS__)
 #define spr_fp_printf(path, format, ...) spr_fp_printf_((path), false, false, (format), ## __VA_ARGS__)
 #define spr_fp_tracef(path, format, ...) spr_fp_printf_((path), true, false, (format), ## __VA_ARGS__)
 #define spr_fp_timef(path, format, ...) spr_fp_printf_((path), false, true, (format), ## __VA_ARGS__)
