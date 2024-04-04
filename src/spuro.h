@@ -6,12 +6,13 @@
 #include <string.h>
 #include <time.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 #define SPURO_MAJOR 0
 #define SPURO_MINOR 1
-#define SPURO_PATCH 0
+#define SPURO_PATCH 1
 
-#define SPURO_VERSION_STRING "0.1.0"
+#define SPURO_VERSION_STRING "0.1.1-dev"
 
 typedef enum SpuroOut {
     SPR_PIT = 0,
