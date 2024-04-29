@@ -4,15 +4,20 @@ on:
   push:
     branches: [ "master" ]
   pull_request:
+    types: [opened, synchronize, reopened, edited]
     branches: [ "master" , "devel"]
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+      # Allows you to run this workflow manually from the Actions tab
+    workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  ubuntu:
+    runs-on: ubuntu-20.04
 
-    steps:
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup dependencies
+      run: sudo apt-get install -y gcc llvm clang
     - uses: actions/checkout@v4
     - name: Run aclocal
       run: aclocal
@@ -26,3 +31,61 @@ jobs:
       run: make
     - name: Run ./spuro-demo
       run: ./spuro-demo
+      env:
+        CI: True
+
+  macos:
+    runs-on: macos-11
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup dependencies
+      run: brew install gcc llvm
+    - uses: actions/checkout@v4
+    - name: Run aclocal
+      run: aclocal
+    - name: Run autoconf
+      run: autoconf
+    - name: Run automake --add-missing
+      run: automake --add-missing
+    - name: Run ./configure
+      run: ./configure
+    - name: Run make
+      run: make
+    - name: Run ./spuro-demo
+      run: ./spuro-demo
+      env:
+        CI: True
+
+  windows-mingw:
+    runs-on: windows-2022
+  defaults:
+    run:
+      shell: msys2 "{0}"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup msys2
+      uses: msys2/setup-msys2@v2
+      with:
+        install: >-
+          make
+          mingw-w64-x86_64-clang
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-llvm
+    - uses: actions/checkout@v4
+    - name: Run aclocal
+      run: aclocal
+    - name: Run autoconf
+      run: autoconf
+    - name: Run automake --add-missing
+      run: automake --add-missing
+    - name: Run ./configure
+      run: ./configure
+    - name: Run make
+      run: make
+    - name: Run ./spuro-demo
+      run: ./spuro-demo
+      env:
+        CI: True
+        MSYSTEM: MINGW64
