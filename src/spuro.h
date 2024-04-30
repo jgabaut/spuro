@@ -10,9 +10,9 @@
 
 #define SPURO_MAJOR 0
 #define SPURO_MINOR 1
-#define SPURO_PATCH 1
+#define SPURO_PATCH 2
 
-#define SPURO_VERSION_STRING "0.1.1"
+#define SPURO_VERSION_STRING "0.1.2"
 
 typedef enum SpuroOut {
     SPR_PIT = 0,
@@ -171,28 +171,6 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
 #define spr_tlogtf_to(spr, level, ...) spr_logf_((spr), (level), SPR_COLOR_AUTO, SPR_HERE, true, true, __VA_ARGS__)
 #define spr_clogtf_to(spr, color, level, ...) spr_logf_((spr), (level), (color), SPR_HERE, true, false, __VA_ARGS__)
 #define spr_tclogtf_to(spr, color, level, ...) spr_logf_((spr), (level), (color), SPR_HERE, true, true, __VA_ARGS__)
-
-// Utility log macros, no format
-#define spr_log(spr, str) spr_logf((spr), "%s", (str))
-#define spr_tlog(spr, str) spr_tlogf((spr), "%s", (str))
-#define spr_clog(spr, color, str) spr_clogf((spr), (color), "%s", (str))
-#define spr_tclog(spr, color, str) spr_tclogf((spr), (color), "%s", (str))
-#define spr_log_to(spr, level, str) spr_logf_to((spr),(level),"%s", (str))
-#define spr_tlog_to(spr, level, str) spr_tlogf_to((spr),(level),"%s", (str))
-#define spr_clog_to(spr, color, level, str) spr_clogf_to((spr),(color), (level),"%s", (str))
-#define spr_tclog_to(spr, color, level, str) spr_tclogf_to((spr),(color), (level),"%s", (str))
-
-// Utility trace macros, no format
-#define spr_logt(spr, str) spr_logtf((spr), "%s", (str))
-#define spr_tlogt(spr, str) spr_tlogtf((spr), "%s", (str))
-#define spr_clogt(spr, color, str) spr_clogtf((spr), (color), "%s", (str))
-#define spr_tclogt(spr, color, str) spr_tclogtf((spr), (color), "%s", (str))
-#define spr_logt_to(spr, level, str) spr_logf_to((spr), (level), "%s", (str))
-#define spr_tlogt_to(spr, level, str) spr_tlogf_to((spr), (level), "%s", (str))
-#define spr_clogt_to(spr, color, level, str) spr_clogf_to((spr), (color), (level), "%s", (str))
-#define spr_tclogt_to(spr, color, level, str) spr_tclogf_to((spr), (color), (level), "%s", (str))
-
-
 
 // Utility file macros
 
