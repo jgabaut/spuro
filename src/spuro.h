@@ -150,6 +150,7 @@ Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool t
 bool spr_setfile(Spuro *spr, FILE *file);
 
 void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char *format, ...);
+void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total);
 
 // Utility log macros
 
@@ -569,6 +570,69 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
         }
     }
     va_end(args);
+}
+
+void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total) {
+    if (spr.out != SPR_STDERR && spr.out != SPR_STDOUT && spr.out != SPR_FILE) return; // Return early since there's no point in printing
+    if (total <= 0) {
+        fprintf(stderr,"%s():    Error: Total must be greater than zero.\n", __func__);
+        return;
+    }
+
+    if (progress < 0) {
+        progress = 0;
+    } else if (progress > total) {
+        progress = total;
+    }
+
+    int bar_width = 70; // Width of the progress bar
+    double percentage = (double)progress / total;
+    int pos = bar_width * percentage;
+
+    spr_logf_(spr, SPR_NOLVL, color, loc,
+            false, //traced,
+            false, //timed,
+            "[");
+    for (int i = 0; i < bar_width; ++i) {
+        if (i < pos) {
+            spr_logf_(spr, SPR_NOLVL, color, loc,
+                    false, //traced,
+                    false, //timed,
+                    "=");
+        } else if (i == pos) {
+            spr_logf_(spr, SPR_NOLVL, color, loc,
+                    false, //traced,
+                    false, //timed,
+                    ">");
+        } else {
+            spr_logf_(spr, SPR_NOLVL, color, loc,
+                    false, //traced,
+                    false, //timed,
+                    " ");
+        }
+    }
+    spr_logf_(spr, SPR_NOLVL, color, loc,
+            false, //traced,
+            false, //timed,
+            "] %3.0f %% [%i/%i]\r", percentage * 100, progress, total);
+    switch(spr.out) {
+        case SPR_PIT: {
+            return;
+        }
+        break;
+        case SPR_STDERR: {
+            fflush(stderr);
+        }
+        break;
+        case SPR_STDOUT: {
+            fflush(stdout);
+        }
+        break;
+        case SPR_FILE: {
+            fflush(spr.fp);
+        }
+        break;
+    }
 }
 
 #endif // SPURO_IMPLEMENTATION

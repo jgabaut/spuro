@@ -1,5 +1,6 @@
 #define SPURO_IMPLEMENTATION
 #include "spuro.h"
+#include <unistd.h> // for usleep
 
 int main(void)
 {
@@ -28,5 +29,13 @@ int main(void)
     spr_ftracef(stdout, "This is traced.\n");
     spr_fttracef(stdout, "This is both timed and traced.\n");
     spr_fp_printf("anvil.log", "This can log to a file by passing its runtime path as a string.");
+
+    printf("\n\n\n\n\n");
+    int total = 123; // Example total value (not 100)
+    for (int i = 0; i <= total; ++i) {
+        spr_print_progress_bar_(SPR_DEFAULT, SPR_RED, SPR_HERE, i, total);
+        usleep(100000); // Sleep for 100 milliseconds
+    }
+    printf("\n");
     return 0;
 }
