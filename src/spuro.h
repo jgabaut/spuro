@@ -150,6 +150,7 @@ Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool t
 bool spr_setfile(Spuro *spr, FILE *file);
 
 void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char *format, ...);
+void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char* format, va_list args);
 void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total);
 
 // Utility log macros
@@ -402,6 +403,7 @@ bool spr_setfile(struct Spuro *spr, FILE *file)
 
 /**
  * Takes a Spuro, a format string, and variadic arguments.
+ * Wrapper over spr_logvf_().
  * @param spr The Spuro to log with.
  * @param level The SpuroLevel for the message.
  * @param color The SpuroColor for the message.
@@ -410,7 +412,16 @@ bool spr_setfile(struct Spuro *spr, FILE *file)
  * @param timed Timestamp message when true.
  * @param format The format string for message.
  */
-void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char *format, ...)
+void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc,
+               bool traced, bool timed, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    spr_logvf_(spr, level, color, loc, traced, timed, format, args);
+    va_end(args);
+}
+
+void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char *format, va_list args)
 {
     const char* lvl_tag;
     char lvl_str[50] = "";
@@ -546,9 +557,6 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
     }
     }
 
-    va_list args;
-    va_start(args, format);
-
     if (level == SPR_NOLVL) {
         if (!do_color) {
             fprintf(out, "%s%s%s", trace_str, time_tag, lvl_str);
@@ -569,7 +577,6 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
             fprintf(out, "]%s\n", SPR_COLORSTR_RESET);
         }
     }
-    va_end(args);
 }
 
 void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total) {
