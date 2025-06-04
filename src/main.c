@@ -1,6 +1,7 @@
 #define SPURO_IMPLEMENTATION
 #include "spuro.h"
 #include <unistd.h> // for usleep
+#include <assert.h>
 
 int main(void)
 {
@@ -29,6 +30,15 @@ int main(void)
     spr_ftracef(stdout, "This is traced.\n");
     spr_fttracef(stdout, "This is both timed and traced.\n");
     spr_fp_printf("anvil.log", "This can log to a file by passing its runtime path as a string.");
+
+    Spuro s4 = spr_new_file(stdout);
+    s4.lvl = SPR_DEBUG;
+
+    spr_add_tee(&s3, &s4);
+
+    assert(s3.tee_count == 1);
+
+    spr_logf_to(s3, SPR_DEBUG, "This logs to s3 and s4");
 
     printf("\n\n\n\n\n");
     int total = 123; // Example total value (not 100)
