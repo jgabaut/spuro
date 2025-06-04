@@ -9,10 +9,10 @@
 #include <stdlib.h>
 
 #define SPURO_MAJOR 0
-#define SPURO_MINOR 1
-#define SPURO_PATCH 2
+#define SPURO_MINOR 2
+#define SPURO_PATCH 0
 
-#define SPURO_VERSION_STRING "0.1.2"
+#define SPURO_VERSION_STRING "0.2.0"
 
 typedef enum SpuroOut {
     SPR_PIT = 0,
@@ -65,6 +65,8 @@ const char* spr_lvl_string(SpuroLevel level);
 const char* spr_lvl_color(SpuroLevel lvl);
 const char* spr_color_string(SpuroColor color);
 
+#define SPR_MAX_TEES 8
+
 typedef struct Spuro {
     SpuroOut out;
     FILE* fp;
@@ -72,6 +74,8 @@ typedef struct Spuro {
     bool timed;
     bool colored;
     bool traced;
+    struct Spuro* tees[SPR_MAX_TEES];
+    int tee_count;
 } Spuro;
 
 typedef struct SpuroLoc {
@@ -104,6 +108,7 @@ typedef struct SpuroLoc {
 
 const char* spr_version_string(void);
 Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool timed, bool colored, bool traced);
+bool spr_add_tee(Spuro* spr, Spuro* tee);
 
 #define spr_new(out) spr_new_(NULL, false, (out), SPR_DEFAULT.lvl, false, false, false)
 
@@ -384,7 +389,21 @@ Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool t
         .timed = (timed ? true : (level == SPR_TRACE ? true : false)),
         .colored = colored,
         .traced = (traced ? true : (level == SPR_TRACE ? true : false)),
+        .tees[0] = NULL,
+        .tee_count = 0,
     };
+}
+
+bool spr_add_tee(Spuro* spr, Spuro* tee)
+{
+    if (!spr || !tee) return false;
+    if (spr->tee_count < SPR_MAX_TEES) {
+        spr->tees[spr->tee_count] = tee;
+        spr->tee_count += 1;
+    } else {
+        return false;
+    }
+    return true;
 }
 
 bool spr_setfile(struct Spuro *spr, FILE *file)
@@ -417,7 +436,17 @@ void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc
 {
     va_list args;
     va_start(args, format);
+
+    va_list args_copy;
+    va_copy(args_copy, args);
+
     spr_logvf_(spr, level, color, loc, traced, timed, format, args);
+
+    for (int i = 0; i < spr.tee_count; i++) {
+        spr_logvf_(*(spr.tees[i]), level, color, loc, traced, timed, format, args_copy);
+    }
+
+    va_end(args_copy);
     va_end(args);
 }
 
@@ -577,6 +606,7 @@ void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
             fprintf(out, "]%s\n", SPR_COLORSTR_RESET);
         }
     }
+
 }
 
 void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total) {
