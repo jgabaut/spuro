@@ -42,10 +42,16 @@ int main(void)
 
     printf("\n\n\n\n\n");
     int total = 123; // Example total value (not 100)
+
+    printf("\033[?25l"); // Hide cursor
+    fflush(stdout);
+
     for (int i = 0; i <= total; ++i) {
         spr_print_progress_bar_(SPR_DEFAULT, SPR_RED, SPR_HERE, i, total);
         usleep(100000); // Sleep for 100 milliseconds
     }
+    printf("\033[?25h"); // Hide cursor
+    fflush(stdout);
     printf("\n");
     return 0;
 }
