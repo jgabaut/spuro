@@ -67,12 +67,18 @@ const char* spr_color_string(SpuroColor color);
 
 #define SPR_MAX_TEES 8
 
+typedef enum SpuroColored {
+    SPR_COLORED_ALWAYS = 0,
+    SPR_COLORED_AUTO,
+    SPR_COLORED_NONE
+} SpuroColored;
+
 typedef struct Spuro {
     SpuroOut out;
     FILE* fp;
     SpuroLevel lvl;
     bool timed;
-    bool colored;
+    SpuroColored colored;
     bool traced;
     struct Spuro* tees[SPR_MAX_TEES];
     int tee_count;
@@ -101,16 +107,16 @@ typedef struct SpuroLoc {
     .fp = NULL, \
     .lvl = SPR_LVL_MAX, \
     .timed = false, \
-    .colored = false, \
+    .colored = SPR_COLORED_AUTO, \
     .traced = false, \
 }
 #endif // SPR_DEFAULT
 
 const char* spr_version_string(void);
-Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool timed, bool colored, bool traced);
+Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool timed, SpuroColored colored, bool traced);
 bool spr_add_tee(Spuro* spr, Spuro* tee);
 
-#define spr_new(out) spr_new_(NULL, false, (out), SPR_DEFAULT.lvl, false, false, false)
+#define spr_new(out) spr_new_(NULL, false, (out), SPR_DEFAULT.lvl, false, SPR_COLORED_AUTO, false)
 
 // Utility new() macros
 
@@ -120,37 +126,37 @@ bool spr_add_tee(Spuro* spr, Spuro* tee);
 // Utility new_file() macros
 
 #define spr_new_file_conf(fp, timed, colored, traced) spr_new_((fp), true, SPR_FILE, SPR_NOLVL, (timed), (colored), (traced))
-#define spr_new_file(fp) spr_new_file_conf((fp),false,false,false)
-#define spr_new_file_timed(fp) spr_new_file_conf((fp),true,false,false)
-#define spr_new_file_traced(fp) spr_new_file_conf((fp),false,false,true)
-#define spr_new_file_tt(fp) spr_new_file_conf((fp),true,false,true)
+#define spr_new_file(fp) spr_new_file_conf((fp),false,SPR_COLORED_AUTO,false)
+#define spr_new_file_timed(fp) spr_new_file_conf((fp),true,SPR_COLORED_AUTO,false)
+#define spr_new_file_traced(fp) spr_new_file_conf((fp),false,SPR_COLORED_AUTO,true)
+#define spr_new_file_tt(fp) spr_new_file_conf((fp),true,SPR_COLORED_AUTO,true)
 
 // Utility new_file() level + conf macros
 #define spr_new_file_lvl_conf(fp, level, timed, colored, traced) spr_new_((fp), true, SPR_FILE, (level), (timed), (colored), (traced))
-#define spr_new_file_timed_to(fp, level) spr_new_lvl_conf((fp), (level), true,false,false)
-#define spr_new_file_traced_to(fp, level) spr_new_lvl_conf((fp), (level), false,false,true)
-#define spr_new_file_tt_to(fp, level) spr_new_lvl_conf((fp), (level),true,false,true)
+#define spr_new_file_timed_to(fp, level) spr_new_lvl_conf((fp), (level), true,SPR_COLORED_AUTO,false)
+#define spr_new_file_traced_to(fp, level) spr_new_lvl_conf((fp), (level), false,SPR_COLORED_AUTO,true)
+#define spr_new_file_tt_to(fp, level) spr_new_lvl_conf((fp), (level),true,SPR_COLORED_AUTO,true)
 
 // Utility new() conf macros
 
-#define spr_new_colored(out) spr_new_conf((out),false,true,false)
-#define spr_new_timed(out) spr_new_conf((out),true,false,false)
-#define spr_new_tc(out) spr_new_conf((out),true,true,false)
-#define spr_new_traced(out) spr_new_conf((out),false,false,true)
-#define spr_new_ttraced(out) spr_new_conf((out),true,false,true)
-#define spr_new_ctraced(out) spr_new_conf((out),false,true,true)
-#define spr_new_tctraced(out) spr_newconf((out),true,true,true)
+#define spr_new_colored(out) spr_new_conf((out),false,SPR_COLORED_ALWAYS,false)
+#define spr_new_timed(out) spr_new_conf((out),true,SPR_COLORED_AUTO,false)
+#define spr_new_tc(out) spr_new_conf((out),true,SPR_COLORED_ALWAYS,false)
+#define spr_new_traced(out) spr_new_conf((out),false,SPR_COLORED_AUTO,true)
+#define spr_new_ttraced(out) spr_new_conf((out),true,SPR_COLORED_AUTO,true)
+#define spr_new_ctraced(out) spr_new_conf((out),false,SPR_COLORED_ALWAYS,true)
+#define spr_new_tctraced(out) spr_newconf((out),true,SPR_COLORED_ALWAYS,true)
 
 // Utility new() level + conf macros
 
-#define spr_new_level(out, level) spr_new_lvl_conf((out),(level),false,false,false)
-#define spr_new_level_timed(out, level) spr_new_lvl_conf((out),(level),true,false,false)
-#define spr_new_level_colored(out, level) spr_new_lvl_conf((out),(level),false,true,false)
-#define spr_new_level_tc(out, level) spr_new_lvl_conf((out),(level),true,true,false)
-#define spr_new_traced_level(out, level) spr_new_lvl_conf((out),(level),false,false,true)
-#define spr_new_ttraced_level(out, level) spr_new_lvl_conf((out),(level),true,false,true)
-#define spr_new_ctraced_level(out, level) spr_new_lvl_conf((out),(level),false,true,true)
-#define spr_new_tctraced_level(out, level) spr_new_lvl_conf((out),(level),true,true,true)
+#define spr_new_level(out, level) spr_new_lvl_conf((out),(level),false,SPR_COLORED_AUTO,false)
+#define spr_new_level_timed(out, level) spr_new_lvl_conf((out),(level),true,SPR_COLORED_AUTO,false)
+#define spr_new_level_colored(out, level) spr_new_lvl_conf((out),(level),false,SPR_COLORED_ALWAYS,false)
+#define spr_new_level_tc(out, level) spr_new_lvl_conf((out),(level),true,SPR_COLORED_ALWAYS,false)
+#define spr_new_traced_level(out, level) spr_new_lvl_conf((out),(level),false,SPR_COLORED_AUTO,true)
+#define spr_new_ttraced_level(out, level) spr_new_lvl_conf((out),(level),true,SPR_COLORED_AUTO,true)
+#define spr_new_ctraced_level(out, level) spr_new_lvl_conf((out),(level),false,SPR_COLORED_ALWAYS,true)
+#define spr_new_tctraced_level(out, level) spr_new_lvl_conf((out),(level),true,SPR_COLORED_ALWAYS,true)
 
 bool spr_setfile(Spuro *spr, FILE *file);
 
@@ -372,7 +378,7 @@ const char* spr_color_string(SpuroColor color)
     }
 }
 
-Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool timed, bool colored, bool traced)
+Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool timed, SpuroColored colored, bool traced)
 {
     if (check_file) {
         if (!fp) {
@@ -482,9 +488,9 @@ void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
 
     bool do_color = false;
     if (color == SPR_COLOR_AUTO) {
-        do_color = spr.colored;
+        do_color = spr.colored == SPR_COLORED_ALWAYS;
     } else {
-        do_color = (spr.out != SPR_FILE);
+        do_color = (spr.colored != SPR_COLORED_NONE && spr.out != SPR_FILE);
     }
 #ifdef _WIN32
     /**
