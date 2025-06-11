@@ -70,6 +70,7 @@ const char* spr_color_string(SpuroColor color);
 typedef enum SpuroColored {
     SPR_COLORED_ALWAYS = 0,
     SPR_COLORED_AUTO,
+    SPR_COLORED_HEADER,
     SPR_COLORED_NONE
 } SpuroColored;
 
@@ -598,8 +599,13 @@ void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
             vfprintf(out, format, args);
         } else {
             fprintf(out, "%s%s%s%s", color_str, trace_str, time_tag, lvl_str);
-            vfprintf(out, format, args);
-            fprintf(out, "%s", SPR_COLORSTR_RESET);
+            if (spr.colored == SPR_COLORED_HEADER) {
+                fprintf(out, "%s", SPR_COLORSTR_RESET);
+                vfprintf(out, format, args);
+            } else {
+                vfprintf(out, format, args);
+                fprintf(out, "%s", SPR_COLORSTR_RESET);
+            }
         }
     } else {
         if (!do_color) {
@@ -607,9 +613,16 @@ void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
             vfprintf(out, format, args);
             fprintf(out, "]\n");
         } else {
-            fprintf(out, "%s%s%s%s[", color_str, trace_str, time_tag, lvl_str);
-            vfprintf(out, format, args);
-            fprintf(out, "]%s\n", SPR_COLORSTR_RESET);
+            fprintf(out, "%s%s%s%s", color_str, trace_str, time_tag, lvl_str);
+            if (spr.colored == SPR_COLORED_HEADER) {
+                fprintf(out, "%s[", SPR_COLORSTR_RESET);
+                vfprintf(out, format, args);
+                fprintf(out, "]\n");
+            } else {
+                fprintf(out, "[");
+                vfprintf(out, format, args);
+                fprintf(out, "]%s\n", SPR_COLORSTR_RESET);
+            }
         }
     }
 
