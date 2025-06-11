@@ -17,9 +17,10 @@ int main(void)
     spr_clogf(s, SPR_CYAN, "Colored!\n");
     Spuro s2 = spr_new(SPR_STDOUT);
     s2.lvl = SPR_TRACE;
+    s2.colored = SPR_COLORED_HEADER;
     spr_logf_to(s2, SPR_DEBUG, "OH? This does not get automated timestamp NOR the automated trace, since the Spuro level was set to SPR_TRACE manually.");
     spr_tlogf_to(s2, SPR_INFO, "We can always call spr_tlogf_to() and get a timestamp.");
-    spr_clogf_to(s2, SPR_WHITE, SPR_WARN, "Manually passing location -> {file: %s, line: %i, func: %s()}", __FILE__, __LINE__, __func__);
+    spr_clogf_to(s2, SPR_CYAN, SPR_WARN, "Manually passing location -> {file: %s, line: %i, func: %s()}", __FILE__, __LINE__, __func__);
     Spuro s3 = spr_new_file(stdout);
     s3.timed = true;
     s3.lvl = SPR_DEBUG;
