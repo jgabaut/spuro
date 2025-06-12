@@ -69,8 +69,8 @@ const char* spr_color_string(SpuroColor color);
 
 typedef enum SpuroColored {
     SPR_COLORED_ALWAYS = 0,
-    SPR_COLORED_AUTO,
     SPR_COLORED_HEADER,
+    SPR_COLORED_AUTO,
     SPR_COLORED_NONE
 } SpuroColored;
 
@@ -489,7 +489,7 @@ void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
 
     bool do_color = false;
     if (color == SPR_COLOR_AUTO) {
-        do_color = spr.colored == SPR_COLORED_ALWAYS;
+        do_color = (spr.colored == SPR_COLORED_ALWAYS) || (spr.colored == SPR_COLORED_HEADER);
     } else {
         do_color = (spr.colored != SPR_COLORED_NONE && spr.out != SPR_FILE);
     }
