@@ -10,9 +10,9 @@
 
 #define SPURO_MAJOR 0
 #define SPURO_MINOR 2
-#define SPURO_PATCH 0
+#define SPURO_PATCH 1
 
-#define SPURO_VERSION_STRING "0.2.0"
+#define SPURO_VERSION_STRING "0.2.1"
 
 typedef enum SpuroOut {
     SPR_PIT = 0,
