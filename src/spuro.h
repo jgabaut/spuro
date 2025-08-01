@@ -10,9 +10,9 @@
 
 #define SPURO_MAJOR 0
 #define SPURO_MINOR 2
-#define SPURO_PATCH 1
+#define SPURO_PATCH 2
 
-#define SPURO_VERSION_STRING "0.2.1"
+#define SPURO_VERSION_STRING "0.2.2"
 
 typedef enum SpuroOut {
     SPR_PIT = 0,
@@ -163,7 +163,7 @@ bool spr_setfile(Spuro *spr, FILE *file);
 
 void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char *format, ...);
 void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char* format, va_list args);
-void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total);
+void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total, int line_index);
 
 // Utility log macros
 
@@ -628,7 +628,7 @@ void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
 
 }
 
-void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total) {
+void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total, int line_index) {
     if (spr.out != SPR_STDERR && spr.out != SPR_STDOUT && spr.out != SPR_FILE) return; // Return early since there's no point in printing
     if (total <= 0) {
         fprintf(stderr,"%s():    Error: Total must be greater than zero.\n", __func__);
@@ -641,6 +641,11 @@ void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, in
         progress = total;
     }
 
+    if (line_index > 0) {
+        char move_up[32];
+        snprintf(move_up, sizeof(move_up), "\x1b[%dA", line_index);
+        spr_logf_(spr, SPR_NOLVL, color, loc, false, false, "%s", move_up);
+    }
     int bar_width = 70; // Width of the progress bar
     double percentage = (double)progress / total;
     int pos = bar_width * percentage;
@@ -671,6 +676,11 @@ void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, in
             false, //traced,
             false, //timed,
             "] %3.0f %% [%i/%i]\r", percentage * 100, progress, total);
+    if (line_index > 0) {
+        char move_down[32];
+        snprintf(move_down, sizeof(move_down), "\x1b[%dB", line_index);
+        spr_logf_(spr, SPR_NOLVL, color, loc, false, false, "%s", move_down);
+    }
     switch(spr.out) {
         case SPR_PIT: {
             return;
