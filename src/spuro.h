@@ -163,7 +163,7 @@ bool spr_setfile(Spuro *spr, FILE *file);
 
 void spr_logf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char *format, ...);
 void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc loc, bool traced, bool timed, const char* format, va_list args);
-void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total, int line_index);
+void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total, int line_index, const char *format, ...);
 
 // Utility log macros
 
@@ -628,7 +628,7 @@ void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
 
 }
 
-void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total, int line_index) {
+void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total, int line_index, const char* format, ...) {
     if (spr.out != SPR_STDERR && spr.out != SPR_STDOUT && spr.out != SPR_FILE) return; // Return early since there's no point in printing
     if (total <= 0) {
         fprintf(stderr,"%s():    Error: Total must be greater than zero.\n", __func__);
@@ -649,6 +649,13 @@ void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, in
     int bar_width = 70; // Width of the progress bar
     double percentage = (double)progress / total;
     int pos = bar_width * percentage;
+
+    va_list args;
+    va_start(args, format);
+
+    spr_logvf_(spr, SPR_NOLVL, color, loc, false, false, format, args);
+
+    va_end(args);
 
     spr_logf_(spr, SPR_NOLVL, color, loc,
             false, //traced,

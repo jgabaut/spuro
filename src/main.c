@@ -48,8 +48,8 @@ int main(void)
     fflush(stdout);
 
     for (int i = 0; i <= total; ++i) {
-        spr_print_progress_bar_(SPR_DEFAULT, SPR_RED, SPR_HERE, i, total, 1);
-        spr_print_progress_bar_(SPR_DEFAULT, SPR_GREEN, SPR_HERE, i, total, 0);
+        spr_print_progress_bar_(SPR_DEFAULT, SPR_RED, SPR_HERE, i, total, 1,   "%s(): foo ", __func__);
+        spr_print_progress_bar_(SPR_DEFAULT, SPR_GREEN, SPR_HERE, i, total, 0, "%s(): bar ", __func__);
         usleep(100000); // Sleep for 100 milliseconds
     }
     printf("\033[?25h"); // Hide cursor
