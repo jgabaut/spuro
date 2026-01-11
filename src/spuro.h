@@ -628,6 +628,42 @@ void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
 
 }
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
+#include <sys/ioctl.h>
+#include <unistd.h>
+#endif // _WIN32
+static int spr_term_width(void) {
+#ifdef _WIN32
+    HANDLE h;
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+
+    h = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (h == INVALID_HANDLE_VALUE)
+        return -1;
+
+    if (!GetConsoleScreenBufferInfo(h, &csbi))
+        return -1;
+
+    return (int)(csbi.srWindow.Right - csbi.srWindow.Left + 1);
+#else
+    struct winsize w;
+
+    if (!isatty(STDOUT_FILENO))
+        return -1;
+
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1)
+        return -1;
+
+    if (w.ws_col == 0)
+        return -1;
+
+    return (int)w.ws_col;
+#endif // _WIN32
+}
+
 void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total, int line_index, const char* format, ...) {
     if (spr.out != SPR_STDERR && spr.out != SPR_STDOUT && spr.out != SPR_FILE) return; // Return early since there's no point in printing
     if (total <= 0) {
@@ -646,16 +682,22 @@ void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, in
         snprintf(move_up, sizeof(move_up), "\x1b[%dA", line_index);
         spr_logf_(spr, SPR_NOLVL, color, loc, false, false, "%s", move_up);
     }
-    int bar_width = 70; // Width of the progress bar
-    double percentage = (double)progress / total;
-    int pos = bar_width * percentage;
 
     va_list args;
     va_start(args, format);
 
+    va_list args_copy;
+    va_copy(args_copy, args);
+    int len = vsnprintf(NULL, 0, format, args_copy) +16;
+    for (int i = total; i > 1; i/=10) len += 1;
+    va_end(args_copy);
     spr_logvf_(spr, SPR_NOLVL, color, loc, false, false, format, args);
 
     va_end(args);
+    int target_width = spr_term_width() - len;
+    int bar_width = target_width > 10 ? target_width : 10; // Width of the progress bar
+    double percentage = (double)progress / total;
+    int pos = bar_width * percentage;
 
     spr_logf_(spr, SPR_NOLVL, color, loc,
             false, //traced,
