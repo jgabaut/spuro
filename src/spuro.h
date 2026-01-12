@@ -146,7 +146,7 @@ bool spr_add_tee(Spuro* spr, Spuro* tee);
 #define spr_new_traced(out) spr_new_conf((out),false,SPR_COLORED_AUTO,true)
 #define spr_new_ttraced(out) spr_new_conf((out),true,SPR_COLORED_AUTO,true)
 #define spr_new_ctraced(out) spr_new_conf((out),false,SPR_COLORED_ALWAYS,true)
-#define spr_new_tctraced(out) spr_newconf((out),true,SPR_COLORED_ALWAYS,true)
+#define spr_new_tctraced(out) spr_new_conf((out),true,SPR_COLORED_ALWAYS,true)
 
 // Utility new() level + conf macros
 
@@ -234,7 +234,7 @@ void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, in
 #define spr_tracef(...) spr_logtf(SPR_DEFAULT, __VA_ARGS__)
 #define spr_ttracef(...) spr_tlogtf(SPR_DEFAULT, __VA_ARGS__)
 #define spr_ctracef(color, ...) spr_clogtf(SPR_DEFAULT, (color), __VA_ARGS__)
-#define spr_tctracef(color, ...) spr_tclogtf(SPR_DEFAULT, (color), SPR_HERE, __VA_ARGS__)
+#define spr_tctracef(color, ...) spr_tclogtf(SPR_DEFAULT, (color), __VA_ARGS__)
 #define spr_ltracef(level, ...) spr_logtf_to(SPR_DEFAULT, (level), __VA_ARGS__)
 #define spr_tltracef(level, ...) spr_tlogtf_to(SPR_DEFAULT, (level), __VA_ARGS__)
 #define spr_cltracef(color, level, ...) spr_clogtf_to(SPR_DEFAULT, (color), (level), __VA_ARGS__)
