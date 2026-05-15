@@ -146,7 +146,7 @@ bool spr_add_tee(Spuro* spr, Spuro* tee);
 #define spr_new_traced(out) spr_new_conf((out),false,SPR_COLORED_AUTO,true)
 #define spr_new_ttraced(out) spr_new_conf((out),true,SPR_COLORED_AUTO,true)
 #define spr_new_ctraced(out) spr_new_conf((out),false,SPR_COLORED_ALWAYS,true)
-#define spr_new_tctraced(out) spr_newconf((out),true,SPR_COLORED_ALWAYS,true)
+#define spr_new_tctraced(out) spr_new_conf((out),true,SPR_COLORED_ALWAYS,true)
 
 // Utility new() level + conf macros
 
