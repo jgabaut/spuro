@@ -8,6 +8,11 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif // _WIN32
+
 #define SPURO_MAJOR 0
 #define SPURO_MINOR 2
 #define SPURO_PATCH 1
@@ -65,6 +70,10 @@ const char* spr_lvl_string(SpuroLevel level);
 const char* spr_lvl_color(SpuroLevel lvl);
 const char* spr_color_string(SpuroColor color);
 
+#ifdef _WIN32
+bool spr_is_vt_mode_enabled(void);
+#endif // _WIN32
+
 #define SPR_MAX_TEES 8
 
 typedef enum SpuroColored {
@@ -83,6 +92,9 @@ typedef struct Spuro {
     bool traced;
     struct Spuro* tees[SPR_MAX_TEES];
     int tee_count;
+#ifdef _WIN32
+    bool vt_enabled;
+#endif // _WIN32
 } Spuro;
 
 typedef struct SpuroLoc {
@@ -103,6 +115,7 @@ typedef struct SpuroLoc {
 }
 
 #ifndef SPR_DEFAULT
+#ifndef _WIN32
 #define SPR_DEFAULT (Spuro) { \
     .out = SPR_STDERR, \
     .fp = NULL, \
@@ -111,6 +124,17 @@ typedef struct SpuroLoc {
     .colored = SPR_COLORED_AUTO, \
     .traced = false, \
 }
+#else
+#define SPR_DEFAULT (Spuro) { \
+    .out = SPR_STDERR, \
+    .fp = NULL, \
+    .lvl = SPR_LVL_MAX, \
+    .timed = false, \
+    .colored = SPR_COLORED_AUTO, \
+    .traced = false, \
+    .vt_enabled = spr_is_vt_mode_enabled(), \
+}
+#endif // _WIN32
 #endif // SPR_DEFAULT
 
 const char* spr_version_string(void);
@@ -379,6 +403,25 @@ const char* spr_color_string(SpuroColor color)
     }
 }
 
+#ifdef _WIN32
+bool spr_is_vt_mode_enabled(void)
+{
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    if (hOut == INVALID_HANDLE_VALUE || hOut == NULL) {
+        return false;
+    } else {
+        DWORD mode = 0;
+
+        if (!GetConsoleMode(hOut, &mode)) {
+            return false;
+        }
+        bool has_vt_enabled = (mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING) != 0;
+        return has_vt_enabled;
+    }
+}
+#endif
+
 Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool timed, SpuroColored colored, bool traced)
 {
     if (check_file) {
@@ -398,6 +441,9 @@ Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool t
         .traced = (traced ? true : (level == SPR_TRACE ? true : false)),
         .tees[0] = NULL,
         .tee_count = 0,
+#ifdef _WIN32
+        .vt_enabled = spr_is_vt_mode_enabled(),
+#endif // _Win32
     };
 }
 
@@ -493,14 +539,10 @@ void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
     } else {
         do_color = (spr.colored != SPR_COLORED_NONE && spr.out != SPR_FILE);
     }
+
 #ifdef _WIN32
-    /**
-     * We check for an existing WT_SESSION env var. Otherwise, we don't bother trying to color.
-     * https://github.com/microsoft/terminal/pull/897
-     */
-    const char* wt_session = getenv("WT_SESSION");
-    if (!wt_session) do_color = false;
-#endif
+    do_color = do_color && spr.vt_enabled;
+#endif // _WIN32
 
     bool do_trace = false;
 
