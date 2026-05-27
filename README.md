@@ -6,6 +6,7 @@
 
 + [What is this thing?](#witt)
   + [Basic example](#basic_example)
+  + [Windows VT mode](#win_vt_mode)
   + [Documentation](#docs)
   + [Prerequisites](#prerequisites)
   + [Configuration](#config)
@@ -26,8 +27,6 @@
   -------------------------------------------------------------------------------
   ```
 
-  The repo is still under construction.
-
 ## Basic example <a name = "basic_example"></a>
 
 ```c
@@ -41,6 +40,29 @@ int main(void)
     return 0;
 }
 ```
+
+## Windows VT mode <a name = "win_vt_mode"></a>
+
+  When `_WIN32` is defined, a check for `ENABLE_VIRTUAL_TERMINAL_PROCESSING` is done once, on `spr_new()`.
+
+  If, for some reason, usercode needs to change its console mode dynamically, you can build with
+
+  `-DSPR_CHECK_VT_EACH_LOG`
+
+  to check for every `spr_log()` call, but only if it was set at `spr_new()` check's time.
+
+  The library never sets the flag itself, it only checks it.
+
+  - [Docs](https://learn.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences)
+
+  Windows VT support:
+  - Introduced in `Windows 10 1607`
+  - Enable via `GetConsoleMode` + `SetConsoleMode` `ENABLE_VIRTUAL_TERMINAL_PROCESSING`
+  - `cmd.exe`:
+    - VT supported since `1607`
+    - Often pre-enabled in practice since `~1909` (not guaranteed)
+  - `Windows Terminal`:
+    - Always VT-enabled by default
 
 ## Documentation <a name = "docs"></a>
 
