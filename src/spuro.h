@@ -541,7 +541,13 @@ void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
     }
 
 #ifdef _WIN32
+#ifndef SPR_CHECK_VT_EACH_LOG
     do_color = do_color && spr.vt_enabled;
+#else
+    if (spr.vt_enabled) {
+        do_color = do_color && spr_is_vt_mode_enabled();
+    }
+#endif // SPR_CHECK_VT_EACH_LOG
 #endif // _WIN32
 
     bool do_trace = false;
