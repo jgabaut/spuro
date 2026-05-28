@@ -440,9 +440,9 @@ Spuro spr_new_(FILE* fp, bool check_file, SpuroOut out, SpuroLevel level, bool t
         .colored = colored,
         .traced = (traced ? true : (level == SPR_TRACE ? true : false)),
         .tees[0] = NULL,
-        .tee_count = 0,
+                   .tee_count = 0,
 #ifdef _WIN32
-        .vt_enabled = spr_is_vt_mode_enabled(),
+                   .vt_enabled = spr_is_vt_mode_enabled(),
 #endif // _Win32
     };
 }
@@ -676,7 +676,8 @@ void spr_logvf_(const Spuro spr, SpuroLevel level, SpuroColor color, SpuroLoc lo
 
 }
 
-void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total) {
+void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, int progress, int total)
+{
     if (spr.out != SPR_STDERR && spr.out != SPR_STDOUT && spr.out != SPR_FILE) return; // Return early since there's no point in printing
     if (total <= 0) {
         fprintf(stderr,"%s():    Error: Total must be greater than zero.\n", __func__);
@@ -694,48 +695,48 @@ void spr_print_progress_bar_(const Spuro spr, SpuroColor color, SpuroLoc loc, in
     int pos = bar_width * percentage;
 
     spr_logf_(spr, SPR_NOLVL, color, loc,
-            false, //traced,
-            false, //timed,
-            "[");
+              false, //traced,
+              false, //timed,
+              "[");
     for (int i = 0; i < bar_width; ++i) {
         if (i < pos) {
             spr_logf_(spr, SPR_NOLVL, color, loc,
-                    false, //traced,
-                    false, //timed,
-                    "=");
+                      false, //traced,
+                      false, //timed,
+                      "=");
         } else if (i == pos) {
             spr_logf_(spr, SPR_NOLVL, color, loc,
-                    false, //traced,
-                    false, //timed,
-                    ">");
+                      false, //traced,
+                      false, //timed,
+                      ">");
         } else {
             spr_logf_(spr, SPR_NOLVL, color, loc,
-                    false, //traced,
-                    false, //timed,
-                    " ");
+                      false, //traced,
+                      false, //timed,
+                      " ");
         }
     }
     spr_logf_(spr, SPR_NOLVL, color, loc,
-            false, //traced,
-            false, //timed,
-            "] %3.0f %% [%i/%i]\r", percentage * 100, progress, total);
+              false, //traced,
+              false, //timed,
+              "] %3.0f %% [%i/%i]\r", percentage * 100, progress, total);
     switch(spr.out) {
-        case SPR_PIT: {
-            return;
-        }
-        break;
-        case SPR_STDERR: {
-            fflush(stderr);
-        }
-        break;
-        case SPR_STDOUT: {
-            fflush(stdout);
-        }
-        break;
-        case SPR_FILE: {
-            fflush(spr.fp);
-        }
-        break;
+    case SPR_PIT: {
+        return;
+    }
+    break;
+    case SPR_STDERR: {
+        fflush(stderr);
+    }
+    break;
+    case SPR_STDOUT: {
+        fflush(stdout);
+    }
+    break;
+    case SPR_FILE: {
+        fflush(spr.fp);
+    }
+    break;
     }
 }
 
